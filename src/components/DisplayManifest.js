@@ -4,14 +4,15 @@ import manifesto from 'manifesto.js';
 export default class DisplayManifest extends Component {
     constructor(props) {
         super(props);
-        // this.state.url = this.props.url;
     }
 
     render() {
+        // alert("DM: "+this.props.label);
+        // alert("DM "+JSON.stringify(this.props));
         return (
             <li>
-            <img src="logo-small.png" width="32" />
-            {this.props.label}
+            <img src={this.props.thumb} width="32" />
+            {this.props.label} – {this.props.id}
             </li>
         );
     }

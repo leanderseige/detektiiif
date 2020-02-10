@@ -31,7 +31,7 @@
         for (index = 0; index < details.responseHeaders.length; index++) {
             var item=details.responseHeaders[index];
             if(
-                item.name.toUpperCase().includes("Content-Type".toUpperCase()) &&
+                item.name.toUpperCase().includes("type".toUpperCase()) &&
                 item.value.toUpperCase().includes("json".toUpperCase())
             ) {
                 accepted = true;

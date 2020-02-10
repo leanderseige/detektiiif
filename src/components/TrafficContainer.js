@@ -17,7 +17,7 @@ export default class TrafficContainer extends Component {
                 fetch(url)
                     .then(res => res.json())
                     .then((data) => {
-                        alert(data.label);
+                        // alert(data.label);
                         // var thumb = data['sequences'][0]['canvases'][0]['images'][0]['resource']['service']['@id']+'/full/200,/0/default.jpg';
                     })
                 .catch(console.log)
