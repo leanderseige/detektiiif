@@ -85,7 +85,7 @@
             startTime: details.timeStamp,
             status: 'pending'
         };
-        console.log(tabStorage[tabId].requests[requestId]);
+        // console.log(tabStorage[tabId].requests[requestId]);
     }, networkFilters, ["responseHeaders"]);
 
     chrome.webRequest.onCompleted.addListener((details) => {
