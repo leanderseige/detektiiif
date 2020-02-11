@@ -11,6 +11,11 @@
             case 'popupInit':
                 response(tabStorage[msg.tabId]);
                 break;
+            case 'updateIcon':
+                chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
+                chrome.browserAction.setBadgeText({text:msg.number});
+                response();
+                break;
             default:
                 response('unknown request');
                 break;

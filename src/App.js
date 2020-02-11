@@ -90,6 +90,11 @@ class App extends Component {
     }
 
     render() {
+        var num =
+            Object.keys(this.state.manifests).length+
+            Object.keys(this.state.images).length;
+        chrome.runtime.sendMessage({type: 'updateIcon', number: num.toString()});
+
         let ms = [];
         for (var key in this.state.manifests) {
             ms.push(<
