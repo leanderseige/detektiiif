@@ -28,10 +28,20 @@ class App extends Component {
         if(ctx[2]!=="iiif.io" || ctx[3]!=="api")
             return false;
 
-        return({
+        var iiif = {
             api: ctx[4].toLowerCase(),
             version: ctx[5].toLowerCase()
-        });
+        }
+
+        if(body.hasOwnProperty("@type")) {
+            iiif.type=body["@type"].split(":")[1].toLowerCase();
+        } else {
+            iiif.type=false
+        }
+
+        // alert(JSON.stringify(iiif))
+
+        return(iiif);
     }
 
 
@@ -44,23 +54,29 @@ class App extends Component {
                         fetch(url)
                             .then(res => res.json())
                             .then((data) => {
-                                var api = this.analyzeBody(data);
-                                if(!api)
+                                var iiif = this.analyzeBody(data);
+                                if(!iiif)
                                     return;
                                 var item = {}
                                 item.id = data['@id'];
                                 item.url = url;
                                 item.label = url; // data.label;
-                                if(api.api=="presentation") {
+                                if(iiif.api=="presentation") {
                                     item.thumb = data['sequences'][0]['canvases'][0]['images'][0]['resource']['service']['@id']+'/full/200,/0/default.jpg';
-                                } else if (api.api=="image") {
+                                } else if (iiif.api=="image") {
                                     item.thumb = data['@id']+'/full/200,/0/default.jpg';
                                 } else {
                                     item.thumb = "logo-small.png";
                                 }
-                                let temp = Object.assign({}, this.state.manifests);
-                                temp[item.id] = item;
-                                this.setState({manifests: temp});
+                                if(iiif.type=="manifest") {
+                                    let temp = Object.assign({}, this.state.manifests);
+                                    temp[item.id] = item;
+                                    this.setState({manifests: temp});
+                                } else {
+                                    let temp = Object.assign({}, this.state.images);
+                                    temp[item.id] = item;
+                                    this.setState({images: temp});
+                                }
                                 // alert("APP "+JSON.stringify(this.state.manifests));
                             })
                         .catch(console.log)
@@ -86,6 +102,18 @@ class App extends Component {
             />)
         }
 
+        let is = [];
+        for (var key in this.state.images) {
+            is.push(<
+                DisplayManifest
+                key = { `item-${this.state.images[key].id}` }
+                id = { this.state.images[key].id }
+                label = { this.state.images[key].label }
+                thumb = { this.state.images[key].thumb }
+                url = { this.state.images[key].url }
+            />)
+        }
+
 
         // alert("APP "+JSON.stringify(this.state.manifests));
 
@@ -94,7 +122,14 @@ class App extends Component {
             <header className="App-header">
               <h1 className="App-title">detektIIIF</h1>
             </header>
-            {ms}
+            <h2>Presentation API: Manifests</h2>
+            <ul>
+                {ms}
+            </ul>
+            <h2>Image API</h2>
+            <ul>
+                {is}
+            </ul>
           </div>
         );
     }

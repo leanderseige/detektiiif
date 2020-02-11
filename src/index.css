@@ -13,5 +13,10 @@ code {
 }
 
 li {
-    text-align: left;    
+    text-align: left;
+    list-style-type:none;
+}
+
+li img {
+    vertical-align: middle;
 }
