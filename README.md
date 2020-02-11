@@ -1,3 +1,20 @@
+detektIIIF
+
+a chrome extension to discover and reuse IIIF content on any website
+
+Examples:
+
+Presentation and Image API:
+https://www.nga.gov/collection/art-object-page.130898.html
+
+Image API only:
+https://digital.deutsches-museum.de/item/3720/
+https://nationalmuseumse.iiifhosting.com/iiif/e08e5377e1e0f2f787132affd3742e795e07cd84e79d4c2f77f97de3d22a993/
+
+
+
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

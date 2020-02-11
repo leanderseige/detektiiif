@@ -11,7 +11,7 @@ export default class DisplayManifest extends Component {
         // alert("DM "+JSON.stringify(this.props));
         return (
             <li>
-            <img src={this.props.thumb} width="32" />
+            <img src={this.props.thumb} width="64" />
             {this.props.label} – {this.props.id}
             </li>
         );

@@ -18,6 +18,23 @@ class App extends Component {
         };
     }
 
+    analyzeBody(body) {
+        if(!body.hasOwnProperty("@context"))
+            return(false);
+
+        var ctx = body["@context"].split("/");
+        // alert(JSON.stringify(ctx));
+
+        if(ctx[2]!=="iiif.io" || ctx[3]!=="api")
+            return false;
+
+        return({
+            api: ctx[4].toLowerCase(),
+            version: ctx[5].toLowerCase()
+        });
+    }
+
+
     componentDidMount() {
         getCurrentTab((tab) => {
             chrome.runtime.sendMessage({type: 'popupInit', tabId: tab.id}, (response) => {
@@ -27,11 +44,20 @@ class App extends Component {
                         fetch(url)
                             .then(res => res.json())
                             .then((data) => {
+                                var api = this.analyzeBody(data);
+                                if(!api)
+                                    return;
                                 var item = {}
                                 item.id = data['@id'];
                                 item.url = url;
                                 item.label = url; // data.label;
-                                item.thumb = "logo-small.png"; // data['sequences'][0]['canvases'][0]['images'][0]['resource']['service']['@id']+'/full/200,/0/default.jpg';
+                                if(api.api=="presentation") {
+                                    item.thumb = data['sequences'][0]['canvases'][0]['images'][0]['resource']['service']['@id']+'/full/200,/0/default.jpg';
+                                } else if (api.api=="image") {
+                                    item.thumb = data['@id']+'/full/200,/0/default.jpg';
+                                } else {
+                                    item.thumb = "logo-small.png";
+                                }
                                 let temp = Object.assign({}, this.state.manifests);
                                 temp[item.id] = item;
                                 this.setState({manifests: temp});
