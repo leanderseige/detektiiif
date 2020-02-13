@@ -46,7 +46,7 @@
             item.thumb = data['sequences'][0]['canvases'][0]['images'][0]['resource']['service']['@id']+'/full/100,/0/default.jpg';
         } else if (iiif.api=="image") {
             item.label = url;
-            item.thumb = data['@id']+'/full/200,/0/default.jpg';
+            item.thumb = data['@id']+'/full/100,/0/default.jpg';
         } else {
             item.label = url;
             item.thumb = "logo-small.png";
@@ -139,6 +139,7 @@
             if(item.name=="Content-Length" && item.value>1000000) {
                 // console.log("discard(2) "+details.url);
                 accepted = false;
+                cache[details.url]=false;
                 return;
             }
         }
