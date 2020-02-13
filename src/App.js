@@ -61,13 +61,9 @@ class App extends Component {
               <h1 className="App-title">detektIIIF</h1>
             </header>
             <h2>Presentation API: Manifests</h2>
-            <ul>
-                {ms}
-            </ul>
+            {ms}
             <h2>Image API</h2>
-            <ul>
-                {is}
-            </ul>
+            {is}
           </div>
         );
     }

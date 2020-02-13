@@ -20,3 +20,36 @@ li {
 li img {
     vertical-align: middle;
 }
+
+.box {
+    display: grid;
+    grid-template-columns: 100px 400px 50px 50px;
+    grid-template-rows: 100px;
+    height:100px;
+    margin:5px;
+}
+
+.box_icon {
+    grid-column: 1;
+    height:100px;
+    background-color: #eee;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.box_text {
+    grid-column: 2;
+    height:100px;
+    text-align: left;
+    padding:5px;
+}
+
+.box_info {
+    grid-column: 3;
+    height:100px;
+}
+
+.box_copy {
+    grid-column: 4;
+    height:100px;
+}
