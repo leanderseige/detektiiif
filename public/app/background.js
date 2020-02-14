@@ -33,7 +33,7 @@
         };
     }
 
-    function compileData(data,url) {
+    function compileData(data,url,request) {
         var tabId = currentTabId;
         var iiif = analyzeBody(data,url);
         if(!iiif)
@@ -41,6 +41,7 @@
         var item = {}
         item.id = data['@id'];
         item.url = url;
+        item.cors = request.cors;
         if(iiif.api=="presentation" && iiif.type=="manifest") {
             item.label = data.label;
             item.thumb = data['sequences'][0]['canvases'][0]['images'][0]['resource']['service']['@id']+'/full/100,/0/default.jpg';
@@ -50,6 +51,9 @@
         } else {
             item.label = url;
             item.thumb = "logo-small.png";
+        }
+        if(item.label.length>40) {
+            item.label=item.label.slice(0,36)+"...";
         }
         if(iiif.type=="manifest") {
             tabStorage[tabId].iiif.manifests[item.id] = item;
@@ -96,18 +100,41 @@
         chrome.browserAction.setBadgeText({text:num.toString()});
     }
 
+    function filterURLs(url) {
+        if(cache[url]===false) {
+            console.log("IGNORED BY CACHE RULE: "+url);
+            return true;
+        } else if (cache.hasOwnProperty(url)) {
+            console.log("ALLOWING URL BY CACHE: "+url);
+            return false;
+        }
+        console.log("ANALYZING HOSTNAME: "+url);
+        const filter = [
+            "google.com", "googleusercontent.com", "gstatic.com",
+            "twitter.com", "linkedin.com", "paypal.com", "ebay.de",
+            "ebay.com", "ebaystatic.com", "ebayimg.com", "googletagservices.com",
+            "amazon.de", "amazon.com", "reddit.com", "facebook.com", "yahoo.com", "yahoo.de"
+        ];
+        var hostname = url.match(/^(https?\:)\/\/([^:\/]*)(.*)$/);
+        hostname = hostname[2].split('.');
+        hostname = hostname[hostname.length-2]+"."+hostname[hostname.length-1];
+        if(filter.includes(hostname)) {
+            console.log("IGNORED BY HOSTNAME, SETTING CACHE RULE: "+url);
+            cache[details.url]=false;
+            return true;
+        }
+        return false;
+    }
+
     chrome.webRequest.onHeadersReceived.addListener((details) => {
-        // const {
-        //     tabId,
-        //     requestId
-        // } = details;
+
+        if(filterURLs(details.url)) {
+            return;
+        }
 
         var tabId = currentTabId;
         var requestId = details.requestId;
 
-        // alert(JSON.stringify(details));
-
-        // console.log("prechecking "+details.url);
 
         if(tabId==chrome.tabs.TAB_ID_NONE) {
             console.log(".TAB_ID_NONE");
@@ -127,14 +154,21 @@
         }
 
         var accepted = false;
+        var cors = false;
 
         for (index = 0; index < details.responseHeaders.length; index++) {
             var item=details.responseHeaders[index];
             if(
-                item.name.toUpperCase().includes("type".toUpperCase()) &&
-                item.value.toUpperCase().includes("json".toUpperCase())
+                item.name.toLowerCase().includes("type") &&
+                item.value.toLowerCase().includes("json")
             ) {
                 accepted = true;
+            }
+            if(
+                item.name.toLowerCase().includes("access-control-allow-origin") &&
+                item.value.toLowerCase().includes("*".toUpperCase())
+            ) {
+                cors = true;
             }
             if(item.name=="Content-Length" && item.value>1000000) {
                 // console.log("discard(2) "+details.url);
@@ -153,16 +187,17 @@
             requestId: requestId,
             url: details.url,
             startTime: details.timeStamp,
+            cors: cors,
             status: 'pending'
         };
         // console.log(tabStorage[tabId].requests[requestId]);
     }, networkFilters, ["responseHeaders"]);
 
     chrome.webRequest.onCompleted.addListener((details) => {
-        // const {
-        //     tabId,
-        //     requestId
-        // } = details;
+
+        if(filterURLs(details.url)) {
+            return;
+        }
 
         var tabId = currentTabId;
         var requestId = details.requestId;
@@ -187,7 +222,8 @@
         if(cache.hasOwnProperty(url)) {
             console.log("CACHE HIT: "+url);
             if(cache[url]) {
-                compileData(cache[url],url);
+                return;
+                // compileData(cache[url],url,request);
             }
         } else {
             console.log("CACHE MISS: "+url);
@@ -195,7 +231,7 @@
                 .then(res => res.json())
                 .then((data) => {
                     cache[url] = data;
-                    compileData(data,url);
+                    compileData(data,url,request);
                 })
                 .catch((error) => {
                     cache[url]=false;

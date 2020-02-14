@@ -38,6 +38,7 @@ class App extends Component {
                 label = { this.state.manifests[key].label }
                 thumb = { this.state.manifests[key].thumb }
                 url = { this.state.manifests[key].url }
+                cors = { this.state.manifests[key].cors }
             />)
         }
 
@@ -50,6 +51,7 @@ class App extends Component {
                 label = { this.state.images[key].label }
                 thumb = { this.state.images[key].thumb }
                 url = { this.state.images[key].url }
+                cors = { this.state.images[key].cors }
             />)
         }
 

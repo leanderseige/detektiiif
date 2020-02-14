@@ -27,6 +27,7 @@ li img {
     grid-template-rows: 100px;
     height:100px;
     margin:5px;
+    font-size: 10pt;
 }
 
 .box_icon {
@@ -52,4 +53,26 @@ li img {
 .box_copy {
     grid-column: 4;
     height:100px;
+}
+
+.red_block {
+    color: #fff;
+    background-color: #600;
+    font-weight: bold;
+    font-size: 8pt;
+    display:inline-block;
+    padding: 2px;
+    margin:0px 3px 0px 0px;
+    border-radius: 4px;
+}
+
+.green_block {
+    color: #fff;
+    background-color: #060;
+    font-weight: bold;
+    font-size: 8pt;
+    display:inline-block;
+    padding: 2px;
+    margin:2px 3px 0px 0px;
+    border-radius: 4px;
 }
