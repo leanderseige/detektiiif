@@ -1,5 +1,5 @@
 (function() {
-    var currentTabId = false;
+    var activeTab = chrome.tabs.TAB_ID_NONE;
     const tabStorage = {};
     const cache = {};
     const networkFilters = {
@@ -11,8 +11,7 @@
     chrome.runtime.onMessage.addListener((msg, sender, response) => {
         switch (msg.type) {
             case 'popupInit':
-                // response(tabStorage[msg.tabId]);
-                response(tabStorage[currentTabId]);
+                response(tabStorage[msg.tabId]);
                 break;
             default:
                 response('unknown request');
@@ -20,7 +19,7 @@
         }
     });
 
-    function initTab(tabId) {
+    function initTabStorage(tabId) {
         tabStorage[tabId] = {
             id: tabId,
             requests: {},
@@ -33,11 +32,11 @@
         };
     }
 
-    function compileData(data,url,request) {
-        var tabId = currentTabId;
-        var iiif = analyzeBody(data,url);
-        if(!iiif)
+    function compileData(data,url,request,tabId) {
+        var iiif = analyzeJSONBody(data,url);
+        if(!iiif) {
             return;
+        }
         var item = {}
         item.id = data['@id'];
         item.url = url;
@@ -60,10 +59,12 @@
         } else {
             tabStorage[tabId].iiif.images[item.id] = item;
         }
-        updateIcon(tabId);
+        if(tabId==activeTab) {
+            updateIcon(tabId);
+        }
     }
 
-    function analyzeBody(body,url) {
+    function analyzeJSONBody(body,url) {
         if(!body.hasOwnProperty("@context")) {
             cache[url]=false;
             return(false);
@@ -92,6 +93,9 @@
     }
 
     function updateIcon(tabId) {
+        if(tabId==chrome.tabs.TAB_ID_NONE) {
+            return;
+        }
         var num =
             Object.keys(tabStorage[tabId].iiif.manifests).length+
             Object.keys(tabStorage[tabId].iiif.images).length;
@@ -100,7 +104,7 @@
         chrome.browserAction.setBadgeText({text:num.toString()});
     }
 
-    function filterURLs(url) {
+    function filterURLs(url) { // returns true=block, false=accept
         if(cache[url]===false) {
             console.log("IGNORED BY CACHE RULE: "+url);
             return true;
@@ -113,43 +117,49 @@
             "google.com", "googleusercontent.com", "gstatic.com",
             "twitter.com", "linkedin.com", "paypal.com", "ebay.de",
             "ebay.com", "ebaystatic.com", "ebayimg.com", "googletagservices.com",
-            "amazon.de", "amazon.com", "reddit.com", "facebook.com", "yahoo.com", "yahoo.de"
-        ];
+            "amazon.de", "amazon.com", "amazon.co.uk", "reddit.com", "facebook.com",
+            "yahoo.com", "yahoo.de", "fbcdn.net", "youtube.com", "netflix.com",
+            "instagram.com", "twitch.tv"
+        ]
+        console.log("matching "+url)
         var hostname = url.match(/^(https?\:)\/\/([^:\/]*)(.*)$/);
+        if(!hostname) {
+            console.log("NO REGEX MATCH: "+url);
+            return true;
+        }
         hostname = hostname[2].split('.');
         hostname = hostname[hostname.length-2]+"."+hostname[hostname.length-1];
         if(filter.includes(hostname)) {
             console.log("IGNORED BY HOSTNAME, SETTING CACHE RULE: "+url);
-            cache[details.url]=false;
+            cache[url]=false;
             return true;
         }
+        console.log("GOOD: "+url);
         return false;
     }
 
     chrome.webRequest.onHeadersReceived.addListener((details) => {
+        var { tabId, requestId, url, timeStamp, method } = details;
 
-        if(filterURLs(details.url)) {
+        if(tabId==chrome.tabs.TAB_ID_NONE) {
             return;
         }
 
-        var tabId = currentTabId;
-        var requestId = details.requestId;
+        // tabId = fixTabId(tabId);
 
-
-        if(tabId==chrome.tabs.TAB_ID_NONE) {
-            console.log(".TAB_ID_NONE");
+        if(filterURLs(url)) {
             return;
         }
 
         if (!tabStorage.hasOwnProperty(tabId)) {
-            // console.log("discard(1) "+details.url);
+            // console.log("discard(1) "+url);
             // return;
             console.log("init tab "+tabId);
-            initTab(tabId);
+            initTabStorage(tabId);
         }
 
-        if (details.method!="GET") {
-            cache[details.url]=false;
+        if (method!="GET") {
+            cache[url]=false;
             return;
         }
 
@@ -194,19 +204,21 @@
     }, networkFilters, ["responseHeaders"]);
 
     chrome.webRequest.onCompleted.addListener((details) => {
+        var { tabId, requestId, url, timeStamp, method } = details;
 
-        if(filterURLs(details.url)) {
+        if(tabId==chrome.tabs.TAB_ID_NONE) {
             return;
         }
 
-        var tabId = currentTabId;
-        var requestId = details.requestId;
+        if(filterURLs(url)) {
+            return;
+        }
 
         if (!tabStorage.hasOwnProperty(tabId) || !tabStorage[tabId].requests.hasOwnProperty(requestId)) {
             return;
         }
 
-        console.log("checking "+details.url);
+        console.debug("DETEKTIIIF CHECKING "+url);
 
         var request = tabStorage[tabId].requests[requestId];
 
@@ -217,25 +229,23 @@
             status: 'complete'
         });
 
-        const {url, requestDuration, status, responseHeaders} = request;
-
         if(cache.hasOwnProperty(url)) {
-            console.log("CACHE HIT: "+url);
+            console.debug("DETEKTIIIF CACHE HIT: "+url);
             if(cache[url]) {
                 return;
                 // compileData(cache[url],url,request);
             }
         } else {
-            console.log("CACHE MISS: "+url);
+            console.debug("DETEKTIIIF CACHE MISS: "+url);
             fetch(url, {cache: "force-cache"})
                 .then(res => res.json())
                 .then((data) => {
                     cache[url] = data;
-                    compileData(data,url,request);
+                    compileData(data,url,request,tabId);
                 })
                 .catch((error) => {
                     cache[url]=false;
-                    console.error('Error:', error);
+                    console.debug('Error:', error);
                 });
         }
 
@@ -244,13 +254,30 @@
     }, networkFilters, ["responseHeaders"]);
 
     chrome.tabs.onActivated.addListener((tab) => {
-        // alert(JSON.stringify(tab));
-        const tabId = tab ? tab.tabId : chrome.tabs.TAB_ID_NONE;
-        currentTabId = tabId;
+        if(!tab) {
+            return;
+        }
+        const tabId = tab.tabId;
+        if(tabId==chrome.tabs.TAB_ID_NONE) {
+            return;
+        }
+        console.log("ACTIVE TAB "+tabId)
+        activeTab=tabId;
         if (!tabStorage.hasOwnProperty(tabId)) {
-            initTab(tabId);
+            initTabStorage(tabId);
         }
         updateIcon(tabId);
+    });
+
+    chrome.tabs.onRemoved.addListener((tab) => {
+        const tabId = tab.tabId;
+        if(tabId==chrome.tabs.TAB_ID_NONE) {
+            return;
+        }
+        if (!tabStorage.hasOwnProperty(tabId)) {
+            return;
+        }
+        tabStorage[tabId] = null;
     });
 
 }());

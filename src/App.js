@@ -18,9 +18,9 @@ class App extends Component {
 
     componentDidMount() {
         getCurrentTab((tab) => {
-            chrome.runtime.sendMessage({type: 'popupInit', tabId: tab.id}, (response) => {
+            chrome.runtime.sendMessage({type: 'popupInit', tabId: tab.id, url: tab.url}, (response) => {
                 if (response) {
-                    // alert(JSON.stringify(response.iiif))
+                    // console.log(JSON.stringify(response.iiif))
                     this.setState({...response.iiif});
                 }
             });

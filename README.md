@@ -1,85 +1,31 @@
-detektIIIF
+# detektIIIF
 
-a chrome extension to discover and reuse IIIF content on any website
+A chrome extension to discover IIIF resources in websites.
 
-Examples:
+## Inspired and based on these articles:
+https://medium.com/@gilfink/building-a-chrome-extension-using-react-c5bfe45aaf36
 
-Presentation and Image API:
+## Examples:
+
+### Presentation and Image API:
 https://www.nga.gov/collection/art-object-page.130898.html
+https://cover.boutique/ (Collections)
+https://manducus.net/iiifcurator/ (Collections)
+https://norman.hrc.utexas.edu/mirador/p15878coll33 (no CORS, at the time of writing)
+https://projectmirador.org/demo/ (a lot of content)
 
-Image API only:
+### Image API only:
 https://digital.deutsches-museum.de/item/3720/
 https://nationalmuseumse.iiifhosting.com/iiif/e08e5377e1e0f2f787132affd3742e795e07cd84e79d4c2f77f97de3d22a993/
 
-
-
-
-
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## How to use
 
-In the project directory, you can run:
+1. check out this respo
 
-### `npm start`
+2. run npm install
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+3. run npm run build
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+4. in Chrome open the Extensions page, turn on developer mode and click "load unpacked", choose the build folder of this repo
