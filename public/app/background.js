@@ -114,7 +114,7 @@
         }
         console.log("ANALYZING HOSTNAME: "+url);
         const filter = [
-            "google.com", "googleusercontent.com", "gstatic.com",
+            "google.com", "googleusercontent.com", "gstatic.com", "google.de",
             "twitter.com", "linkedin.com", "paypal.com", "ebay.de",
             "ebay.com", "ebaystatic.com", "ebayimg.com", "googletagservices.com",
             "amazon.de", "amazon.com", "amazon.co.uk", "reddit.com", "facebook.com",
