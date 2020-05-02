@@ -1,12 +1,10 @@
 # detektIIIF
 
-This is a chrome extension to discover IIIF resources and links in websites. It is just a proof-of-concept, it is work not-in-progress-anymore and it surely will contain bugs. I would like to inspire people to build extensions like this for popular browsers. Please do it better than I did. I would like to have an extension like this in order to use IIIF resources from websites not actively providing links to manifests etc.
+This is a chrome extension to discover IIIF resources and links in websites. It is just a proof-of-concept, it is work not-in-progress-anymore and it surely will contain bugs. I would like to inspire people to build extensions like this for popular browsers. Please do it better than I did.
 
 ![Screenshot](detektiiif.png)
 
-
-
-## Inspired and based on these articles:
+### Inspired and based on these articles:
 https://medium.com/@gilfink/building-a-chrome-extension-using-react-c5bfe45aaf36
 
 ## Examples:
@@ -26,10 +24,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## How to use
 
-1. check out this respo
+1. ```git clone https://github.com/leanderseige/detektiiif```
 
-2. run npm install
+2. ```npm install```
 
-3. run npm run build
+3. ```npm run build```
 
 4. in Chrome open the Extensions page, turn on developer mode and click "load unpacked", choose the build folder of this repo
