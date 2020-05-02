@@ -2,7 +2,7 @@
 
 This is a chrome extension to discover IIIF resources and links in websites. It is just a proof-of-concept, it is work not-in-progress-anymore and it surely will contain bugs. I would like to inspire people to build extensions like this for popular browsers. Please do it better than I did. I would like to have an extension like this in order to use IIIF resources from websites not actively providing links to manifests etc.
 
-
+![Screenshot](detektiiif.png)
 
 
 
