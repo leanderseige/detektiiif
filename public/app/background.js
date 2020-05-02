@@ -1,7 +1,9 @@
+var activeTab = chrome.tabs.TAB_ID_NONE;
+var tabStorage = {};
+var cache = {};
+
 (function() {
-    var activeTab = chrome.tabs.TAB_ID_NONE;
-    const tabStorage = {};
-    const cache = {};
+
     const networkFilters = {
         urls: [
             "<all_urls>"
@@ -20,6 +22,14 @@
     });
 
     function initTabStorage(tabId) {
+        if(tabStorage[tabId]) {
+            delete tabStorage[tabId].requests;
+            delete tabStorage[tabId].iiif.manifests;
+            delete tabStorage[tabId].iiif.images;
+            delete tabStorage[tabId].iiif.collections;
+            delete tabStorage[tabId].iiif;
+            delete tabStorage[tabId];
+        }
         tabStorage[tabId] = {
             id: tabId,
             requests: {},
@@ -253,7 +263,24 @@
 
     }, networkFilters, ["responseHeaders"]);
 
+    chrome.tabs.onUpdated.addListener((tab) => {
+        alert("UPDATE");
+        if(!tab) {
+            return;
+        }
+        const tabId = tab.tabId;
+        if(tabId==chrome.tabs.TAB_ID_NONE) {
+            return;
+        }
+        console.log("UPDATE TAB "+tabId)
+        // activeTab=tabId;
+        // tabStorage[tabId] = null;
+        initTabStorage(tabId);
+        updateIcon(tabId);
+    });
+
     chrome.tabs.onActivated.addListener((tab) => {
+        alert("ACTIVATE");
         if(!tab) {
             return;
         }
