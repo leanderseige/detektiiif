@@ -27,12 +27,6 @@ export default class DisplayManifest extends Component {
                     {corsflag[this.props.cors.toString()]}
                     {httpsflag[this.props.url.startsWith("https").toString()]}
                 </div>
-                <div className="box_info">
-                CORS
-                </div>
-                <div className="box_copy">
-                COPY
-                </div>
             </div>
         );
     }

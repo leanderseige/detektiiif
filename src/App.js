@@ -42,6 +42,19 @@ class App extends Component {
             />)
         }
 
+        let cs = [];
+        for (var key in this.state.collections) {
+            cs.push(<
+                DisplayManifest
+                key = { `item-${this.state.collections[key].id}` }
+                id = { this.state.collections[key].id }
+                label = { this.state.collections[key].label }
+                thumb = { this.state.collections[key].thumb }
+                url = { this.state.collections[key].url }
+                cors = { this.state.collections[key].cors }
+            />)
+        }
+
         let is = [];
         for (var key in this.state.images) {
             is.push(<
@@ -60,11 +73,13 @@ class App extends Component {
         return (
           <div className="App">
             <header className="App-header">
-              <h1 className="App-title">detektIIIF</h1>
+              <h2 className="App-title">detektIIIF</h2>
             </header>
-            <h2>Presentation API: Manifests</h2>
+            <h3>Presentation API: Manifests</h3>
             {ms}
-            <h2>Image API</h2>
+            <h3>Presentation API: Collections</h3>
+            {cs}
+            <h3>Image API</h3>
             {is}
           </div>
         );

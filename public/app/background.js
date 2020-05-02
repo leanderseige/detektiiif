@@ -1,8 +1,7 @@
-var activeTab = chrome.tabs.TAB_ID_NONE;
-var tabStorage = {};
-var cache = {};
-
 (function() {
+    var activeTab = chrome.tabs.TAB_ID_NONE;
+    var tabStorage = {};
+    var cache = {};
 
     const networkFilters = {
         urls: [
@@ -22,14 +21,14 @@ var cache = {};
     });
 
     function initTabStorage(tabId) {
-        if(tabStorage[tabId]) {
-            delete tabStorage[tabId].requests;
-            delete tabStorage[tabId].iiif.manifests;
-            delete tabStorage[tabId].iiif.images;
-            delete tabStorage[tabId].iiif.collections;
-            delete tabStorage[tabId].iiif;
+        // if(tabStorage[tabId]) {
+        //     delete tabStorage[tabId].requests;
+        //     delete tabStorage[tabId].iiif.manifests;
+        //     delete tabStorage[tabId].iiif.images;
+        //     delete tabStorage[tabId].iiif.collections;
+        //     delete tabStorage[tabId].iiif;
             delete tabStorage[tabId];
-        }
+        // };
         tabStorage[tabId] = {
             id: tabId,
             requests: {},
@@ -46,6 +45,9 @@ var cache = {};
         var iiif = analyzeJSONBody(data,url);
         if(!iiif) {
             return;
+        }
+        if (!tabStorage.hasOwnProperty(tabId)) {
+            initTabStorage(tabId);
         }
         var item = {}
         item.id = data['@id'];
@@ -66,6 +68,8 @@ var cache = {};
         }
         if(iiif.type=="manifest") {
             tabStorage[tabId].iiif.manifests[item.id] = item;
+        } else if (iiif.type=="collection") {
+            tabStorage[tabId].iiif.collections[item.id] = item;
         } else {
             tabStorage[tabId].iiif.images[item.id] = item;
         }
@@ -108,6 +112,7 @@ var cache = {};
         }
         var num =
             Object.keys(tabStorage[tabId].iiif.manifests).length+
+            Object.keys(tabStorage[tabId].iiif.collections).length+
             Object.keys(tabStorage[tabId].iiif.images).length;
         chrome.runtime.sendMessage({type: 'updateIcon', number: num.toString()});
         chrome.browserAction.setBadgeBackgroundColor({ color: [255, 0, 0, 255] });
@@ -116,13 +121,13 @@ var cache = {};
 
     function filterURLs(url) { // returns true=block, false=accept
         if(cache[url]===false) {
-            console.log("IGNORED BY CACHE RULE: "+url);
+            // console.log("IGNORED BY CACHE RULE: "+url);
             return true;
         } else if (cache.hasOwnProperty(url)) {
-            console.log("ALLOWING URL BY CACHE: "+url);
+            // console.log("ALLOWING URL BY CACHE: "+url);
             return false;
         }
-        console.log("ANALYZING HOSTNAME: "+url);
+        // console.log("ANALYZING HOSTNAME: "+url);
         const filter = [
             "google.com", "googleusercontent.com", "gstatic.com", "google.de",
             "twitter.com", "linkedin.com", "paypal.com", "ebay.de",
@@ -131,20 +136,20 @@ var cache = {};
             "yahoo.com", "yahoo.de", "fbcdn.net", "youtube.com", "netflix.com",
             "instagram.com", "twitch.tv"
         ]
-        console.log("matching "+url)
+        // console.log("matching "+url)
         var hostname = url.match(/^(https?\:)\/\/([^:\/]*)(.*)$/);
         if(!hostname) {
-            console.log("NO REGEX MATCH: "+url);
+            // console.log("NO REGEX MATCH: "+url);
             return true;
         }
         hostname = hostname[2].split('.');
         hostname = hostname[hostname.length-2]+"."+hostname[hostname.length-1];
         if(filter.includes(hostname)) {
-            console.log("IGNORED BY HOSTNAME, SETTING CACHE RULE: "+url);
+            // console.log("IGNORED BY HOSTNAME, SETTING CACHE RULE: "+url);
             cache[url]=false;
             return true;
         }
-        console.log("GOOD: "+url);
+        // console.log("GOOD: "+url);
         return false;
     }
 
@@ -162,8 +167,6 @@ var cache = {};
         }
 
         if (!tabStorage.hasOwnProperty(tabId)) {
-            // console.log("discard(1) "+url);
-            // return;
             console.log("init tab "+tabId);
             initTabStorage(tabId);
         }
@@ -193,13 +196,13 @@ var cache = {};
             if(item.name=="Content-Length" && item.value>1000000) {
                 // console.log("discard(2) "+details.url);
                 accepted = false;
-                cache[details.url]=false;
+                cache[url]=false;
                 return;
             }
         }
 
         if (accepted==false) {
-            cache[details.url]=false;
+            cache[url]=false;
             return;
         }
 
@@ -242,8 +245,8 @@ var cache = {};
         if(cache.hasOwnProperty(url)) {
             console.debug("DETEKTIIIF CACHE HIT: "+url);
             if(cache[url]) {
+                compileData(cache[url],url,request,tabId);
                 return;
-                // compileData(cache[url],url,request);
             }
         } else {
             console.debug("DETEKTIIIF CACHE MISS: "+url);
@@ -263,16 +266,16 @@ var cache = {};
 
     }, networkFilters, ["responseHeaders"]);
 
-    chrome.tabs.onUpdated.addListener((tab) => {
-        alert("UPDATE");
-        if(!tab) {
+    chrome.tabs.onUpdated.addListener((tabId,changeInfo,tab) => {
+        console.log("UPDATE TAB "+tabId)
+        if(!changeInfo.url) {
+            console.log("NO URL INFO");
             return;
         }
-        const tabId = tab.tabId;
+        // alert("UPDATE");
         if(tabId==chrome.tabs.TAB_ID_NONE) {
             return;
         }
-        console.log("UPDATE TAB "+tabId)
         // activeTab=tabId;
         // tabStorage[tabId] = null;
         initTabStorage(tabId);
@@ -280,7 +283,7 @@ var cache = {};
     });
 
     chrome.tabs.onActivated.addListener((tab) => {
-        alert("ACTIVATE");
+        // alert("ACTIVATE");
         if(!tab) {
             return;
         }
@@ -304,7 +307,7 @@ var cache = {};
         if (!tabStorage.hasOwnProperty(tabId)) {
             return;
         }
-        tabStorage[tabId] = null;
+        delete tabStorage[tabId];
     });
 
 }());
