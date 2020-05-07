@@ -2,8 +2,6 @@
 
 This is a chrome extension to discover IIIF resources and links in websites. It is just a proof-of-concept, it is work not-in-progress-anymore and it surely will contain bugs. I would like to inspire people to build extensions like this for popular browsers. Please do it better than I did.
 
-![Screenshot](detektiiif2.png)
-
 ![Screenshot](detektiiif.png)
 
 ## Inspired by and based on these articles:
@@ -35,6 +33,10 @@ https://digital.deutsches-museum.de/item/3720/
 
 https://nationalmuseumse.iiifhosting.com/iiif/e08e5377e1e0f2f787132affd3742e795e07cd84e79d4c2f77f97de3d22a993/
 
+https://www.harvardartmuseums.org/collections/object/205798
+
+![Screenshot](detektiiif2.png)
+
 ## How to use
 
 1. ```git clone https://github.com/leanderseige/detektiiif```
@@ -46,3 +48,5 @@ https://nationalmuseumse.iiifhosting.com/iiif/e08e5377e1e0f2f787132affd3742e795e
 3. ```npm run build```
 
 4. in Chrome open the Extensions page, turn on developer mode and click "load unpacked", choose the build folder of this repo
+
+![Screenshot](extensions.png)
