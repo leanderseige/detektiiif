@@ -49,4 +49,4 @@ https://www.harvardartmuseums.org/collections/object/205798
 
 4. in Chrome open the Extensions page, turn on developer mode and click "load unpacked", choose the build folder of this repo
 
-![Screenshot](extensions.png)
+![Screenshot](extensions2.png)
