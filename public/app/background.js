@@ -160,6 +160,8 @@
             return;
         }
 
+        console.log("URL: "+url);
+
         // tabId = fixTabId(tabId);
 
         if(filterURLs(url)) {

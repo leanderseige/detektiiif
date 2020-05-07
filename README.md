@@ -41,6 +41,8 @@ https://nationalmuseumse.iiifhosting.com/iiif/e08e5377e1e0f2f787132affd3742e795e
 
 2. ```npm install```
 
+2. ```cd detektIIIF```
+
 3. ```npm run build```
 
 4. in Chrome open the Extensions page, turn on developer mode and click "load unpacked", choose the build folder of this repo
