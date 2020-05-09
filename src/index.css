@@ -33,7 +33,7 @@ li img {
 .box_icon {
     grid-column: 1;
     height:100px;
-    background-color: #eee;
+    background-color: transparent;
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -57,7 +57,7 @@ li img {
 
 .red_block {
     color: #fff;
-    background-color: #600;
+    background-color: #800;
     font-weight: bold;
     font-size: 8pt;
     display:inline-block;
@@ -75,4 +75,23 @@ li img {
     padding: 2px;
     margin:2px 3px 0px 0px;
     border-radius: 4px;
+}
+
+.grey_block {
+    color: #fff;
+    background-color: #888;
+    font-weight: bold;
+    font-size: 8pt;
+    display:inline-block;
+    padding: 2px;
+    margin:2px 3px 0px 0px;
+    border-radius: 4px;
+}
+
+.error_block {
+    color: #000;
+    background-color: transparent;
+    font-weight: normal;
+    font-size: 64pt;
+
 }

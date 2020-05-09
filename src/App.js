@@ -39,6 +39,7 @@ class App extends Component {
                 thumb = { this.state.manifests[key].thumb }
                 url = { this.state.manifests[key].url }
                 cors = { this.state.manifests[key].cors }
+                error = { this.state.manifests[key].error }
             />)
         }
 
@@ -52,6 +53,7 @@ class App extends Component {
                 thumb = { this.state.collections[key].thumb }
                 url = { this.state.collections[key].url }
                 cors = { this.state.collections[key].cors }
+                error = { this.state.collections[key].error }
             />)
         }
 
@@ -65,6 +67,7 @@ class App extends Component {
                 thumb = { this.state.images[key].thumb }
                 url = { this.state.images[key].url }
                 cors = { this.state.images[key].cors }
+                error = { this.state.images[key].error }
             />)
         }
 

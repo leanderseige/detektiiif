@@ -14,6 +14,10 @@
             case 'popupInit':
                 response(tabStorage[msg.tabId]);
                 break;
+            case 'docLoad':
+                console.log("DOC RCVD");
+                analyzeHTMLBody(msg.doc);
+                break;
             default:
                 response('unknown request');
                 break;
@@ -44,18 +48,32 @@
     function compileData(data,url,request,tabId) {
         var iiif = analyzeJSONBody(data,url);
         if(!iiif) {
+            console.log("NO for "+url);
             return;
         }
+        console.log("OK for "+url);
         if (!tabStorage.hasOwnProperty(tabId)) {
             initTabStorage(tabId);
         }
+
         var item = {}
         item.id = data['@id'];
-        item.url = url;
+        item.url =url;
         item.cors = request.cors;
+        item.error = 0;
         if(iiif.api=="presentation" && iiif.type=="manifest") {
-            item.label = data.label;
-            item.thumb = data['sequences'][0]['canvases'][0]['images'][0]['resource']['service']['@id']+'/full/100,/0/default.jpg';
+            try {
+              if (typeof data.label === 'string' || data.label instanceof String) {
+                item.label = data.label;
+              } else {
+                item.label = data.label[0]['@value'];
+              }
+              item.thumb = data['sequences'][0]['canvases'][0]['images'][0]['resource']['service']['@id']+'/full/100,/0/default.jpg';
+            } catch(err) {
+              item.error = 1;
+              item.label = url;
+              item.thumb = "logo-small-grey.png";
+            }
         } else if (iiif.api=="image") {
             item.label = url;
             item.thumb = data['@id']+'/full/100,/0/default.jpg';
@@ -76,6 +94,78 @@
         if(tabId==activeTab) {
             updateIcon(tabId);
         }
+    }
+
+    function analyzeHTMLBody(doc) {
+
+      // NGA
+      var regex_nga = /https\:\/\/www\.nga\.gov\/api\/v1\/iiif\/presentation\/manifest\.json\?cultObj\:id\=[0-9]+/i;
+      var params = doc.match(regex_nga);
+      if(params) {
+        params.forEach((inurl, i) => {
+          var url = inurl.replace("cultObj:id","cultObj%3Aid");
+          url = url.replace("/content/ngaweb","");
+          console.log(url);
+          fetch(url, {cache: "force-cache"})
+              .then(res => res.json())
+              .then((data) => {
+                  console.log(data);
+                  console.log(url);
+                  console.log(activeTab);
+                  cache[url] = data;
+                  compileData(data,url,{cors:2},activeTab);
+                  console.log("TAB: "+tabStorage[activeTab]);
+              })
+              .catch((error) => {
+                  cache[url]=false;
+                  console.debug('Error:', error);
+              });
+        });
+      }
+      // Europeana – SMK
+      chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+        let url = tabs[0].url;
+        console.log(tabs[0].id+" / "+tabs[0]+url);
+        var regex_epa = /https\:\/\/www\.europeana\.eu\/..\/item\/([^\/]+)\/([^\?\"]+).*/i;
+        var params = url.match(regex_epa);
+        if(params && params.length>2) {
+          switch(params[1]) {
+            case '2020903':
+              var murl = "https://api.smk.dk/api/v1/iiif/manifest/?id="+params[2];
+              break;
+            default:
+              var murl=false
+              break;
+          }
+          if(murl) {
+            console.log(murl);
+            fetch(murl, {cache: "force-cache"})
+                .then(res => res.json())
+                .then((data) => {
+                    console.log(data);
+                    console.log(murl);
+                    console.log(activeTab);
+                    // cache[murl] = data;
+                    compileData(data,murl,{cors:2},activeTab);
+                })
+                .catch((error) => {
+                    // cache[murl]=false;
+                    console.debug('Error:', error);
+                });
+          }
+        }
+      });
+
+      // var offdoc = document.createElement('html');
+      // offdoc.innerHTML = doc;
+      // var links = offdoc.getElementsByTagName('a');
+      // for(var i = 0; i< links.length; i++) {
+      //   var link = links[i].href;
+      //   if(link.includes("iiif")) {
+      //     console.log(link);
+      //   }
+      // }
+
     }
 
     function analyzeJSONBody(body,url) {
@@ -134,7 +224,7 @@
             "ebay.com", "ebaystatic.com", "ebayimg.com", "googletagservices.com",
             "amazon.de", "amazon.com", "amazon.co.uk", "reddit.com", "facebook.com",
             "yahoo.com", "yahoo.de", "fbcdn.net", "youtube.com", "netflix.com",
-            "instagram.com", "twitch.tv"
+            "instagram.com", "twitch.tv", "twimg.com"
         ]
         // console.log("matching "+url)
         var hostname = url.match(/^(https?\:)\/\/([^:\/]*)(.*)$/);
@@ -179,7 +269,7 @@
         }
 
         var accepted = false;
-        var cors = false;
+        var cors = 0;
 
         for (index = 0; index < details.responseHeaders.length; index++) {
             var item=details.responseHeaders[index];
@@ -193,7 +283,7 @@
                 item.name.toLowerCase().includes("access-control-allow-origin") &&
                 item.value.toLowerCase().includes("*".toUpperCase())
             ) {
-                cors = true;
+                cors = 1;
             }
             if(item.name=="Content-Length" && item.value>1000000) {
                 // console.log("discard(2) "+details.url);
@@ -270,6 +360,20 @@
 
     chrome.tabs.onUpdated.addListener((tabId,changeInfo,tab) => {
         console.log("UPDATE TAB "+tabId)
+
+        if(changeInfo.status === 'complete') {
+          globalTabId = tabId; // HACK
+          chrome.tabs.executeScript({
+            code: "chrome.runtime.sendMessage({type: 'docLoad', doc: document.documentElement.innerHTML});" // or 'file: "getPagesSource.js"'
+          }, function(result) {
+            if (chrome.runtime.lastError) {
+              // console.error(chrome.runtime.lastError.message);
+            } else {
+              console.log(result)
+            }
+          });
+        }
+
         if(!changeInfo.url) {
             console.log("NO URL INFO");
             return;
@@ -311,5 +415,6 @@
         }
         delete tabStorage[tabId];
     });
+
 
 }());

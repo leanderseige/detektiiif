@@ -29,13 +29,19 @@ https://projectmirador.org/demo/ (a lot of content)
 
 ### Image API only:
 
-https://digital.deutsches-museum.de/item/3720/
+http://emp-web-84.zetcom.ch/eMP/eMuseumPlus?service=ExternalInterface&module=collection&objectId=32560&viewType=detailView
 
 https://nationalmuseumse.iiifhosting.com/iiif/e08e5377e1e0f2f787132affd3742e795e07cd84e79d4c2f77f97de3d22a993/
 
 https://www.harvardartmuseums.org/collections/object/205798
 
 ![Screenshot](detektiiif2.png)
+
+### Discover IIIF resources from page content
+
+https://www.europeana.eu/en/item/2020903/KKS11964
+
+![Screenshot](detektiiif3.png)
 
 ## How to use
 
