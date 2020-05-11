@@ -55,6 +55,7 @@
     function fetchHttpWorker(url,request,follow) {
       if(url in cache) {
         console.log("no fetch, already cached")
+        compileData(cache[url],url,request,activeTab);
         return;
       }
       fetch(url, {cache: "force-cache", follow: follow})
@@ -170,26 +171,17 @@
 
       });
 
-      // Nationalmuseum SE
-      // chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
-      //   let url = tabs[0].url;
-      //   console.log(tabs[0].id+" / "+tabs[0]+url);
-      //   var regex_nationalmuseumse1 = /https\:\/\/nationalmuseumse\.iiifhosting\.com\/iiif\/[^\/]+\//i;
-      //   var params = url.match(regex_nationalmuseumse1);
-      //   if(params) {
-      //     fetchHttp(url+"manifest.json",{cors:2});
-      //   }
-      // });
-
       // Generic, should match e.g. National Museum Sweden
-      // var regex_generic = /https\:\/\/[\"]*iiif[\"]*manifest.json/i;
-      // var params = doc.match(regex_generic);
-      // if(params) {
-      //   params.forEach((inurl, i) => {
-      //     console.log("check guess: "+url);
-      //     fetchHttp(url,{cors:2});
-      //   });
-      // }
+      var regex_generic = /\"(https\:\/\/[^\"]*iiif[^\"]*manifest[^\"]*)\"/gi;
+      var params = [...doc.matchAll(regex_generic)];
+      if(params) {
+        params.forEach((hit, i) => {
+          if(hit.length>1) {
+            console.log("check guess: "+hit[1]);
+            fetchHttp(hit[1],{cors:2});
+          }
+        });
+      }
 
 
       // var offdoc = document.createElement('html');
