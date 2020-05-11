@@ -45,6 +45,34 @@
         };
     }
 
+    function fetchHttp(url,request) {
+      fetchHttpWorker(url,request,"follow");
+      if(url.startsWith("http:")) {
+        fetchHttpWorker(url.replace(/^http\:/i,"https:"),request,"follow");
+      }
+    }
+
+    function fetchHttpWorker(url,request,follow) {
+      if(url in cache) {
+        console.log("no fetch, already cached")
+        return;
+      }
+      fetch(url, {cache: "force-cache", follow: follow})
+          .then(res => res.json())
+          .then((data) => {
+              // console.log(data);
+              // console.log(url);
+              // console.log(activeTab);
+              cache[url] = data;
+              compileData(data,url,request,activeTab);
+              // console.log("TAB: "+tabStorage[activeTab]);
+          })
+          .catch((error) => {
+              cache[url] = false;
+              console.debug('Error:', error);
+          });
+    }
+
     function compileData(data,url,request,tabId) {
         var iiif = analyzeJSONBody(data,url);
         if(!iiif) {
@@ -106,26 +134,15 @@
           var url = inurl.replace("cultObj:id","cultObj%3Aid");
           url = url.replace("/content/ngaweb","");
           console.log(url);
-          fetch(url, {cache: "force-cache"})
-              .then(res => res.json())
-              .then((data) => {
-                  console.log(data);
-                  console.log(url);
-                  console.log(activeTab);
-                  cache[url] = data;
-                  compileData(data,url,{cors:2},activeTab);
-                  console.log("TAB: "+tabStorage[activeTab]);
-              })
-              .catch((error) => {
-                  cache[url]=false;
-                  console.debug('Error:', error);
-              });
+          fetchHttp(url,{cors:2});
         });
       }
-      // Europeana – SMK
+
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         let url = tabs[0].url;
         console.log(tabs[0].id+" / "+tabs[0]+url);
+
+        // Europeana – SMK
         var regex_epa = /https\:\/\/www\.europeana\.eu\/..\/item\/([^\/]+)\/([^\?\"]+).*/i;
         var params = url.match(regex_epa);
         if(params && params.length>2) {
@@ -139,22 +156,41 @@
           }
           if(murl) {
             console.log(murl);
-            fetch(murl, {cache: "force-cache"})
-                .then(res => res.json())
-                .then((data) => {
-                    console.log(data);
-                    console.log(murl);
-                    console.log(activeTab);
-                    // cache[murl] = data;
-                    compileData(data,murl,{cors:2},activeTab);
-                })
-                .catch((error) => {
-                    // cache[murl]=false;
-                    console.debug('Error:', error);
-                });
+            fetchHttp(murl,{cors:2});
           }
         }
+
+        // Nationalmuseum SE
+        var regex_nationalmuseumse1 = /https\:\/\/nationalmuseumse\.iiifhosting\.com\/iiif\/[^\/]+\//i;
+        var params = url.match(regex_nationalmuseumse1);
+        if(params) {
+          fetchHttp(url+"manifest.json",{cors:2});
+        }
+
+
       });
+
+      // Nationalmuseum SE
+      // chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
+      //   let url = tabs[0].url;
+      //   console.log(tabs[0].id+" / "+tabs[0]+url);
+      //   var regex_nationalmuseumse1 = /https\:\/\/nationalmuseumse\.iiifhosting\.com\/iiif\/[^\/]+\//i;
+      //   var params = url.match(regex_nationalmuseumse1);
+      //   if(params) {
+      //     fetchHttp(url+"manifest.json",{cors:2});
+      //   }
+      // });
+
+      // Generic, should match e.g. National Museum Sweden
+      // var regex_generic = /https\:\/\/[\"]*iiif[\"]*manifest.json/i;
+      // var params = doc.match(regex_generic);
+      // if(params) {
+      //   params.forEach((inurl, i) => {
+      //     console.log("check guess: "+url);
+      //     fetchHttp(url,{cors:2});
+      //   });
+      // }
+
 
       // var offdoc = document.createElement('html');
       // offdoc.innerHTML = doc;
@@ -170,7 +206,7 @@
 
     function analyzeJSONBody(body,url) {
         if(!body.hasOwnProperty("@context")) {
-            cache[url]=false;
+            cache[url]=false; // that's no IIIF, block by cache rule
             return(false);
         }
 
@@ -178,7 +214,7 @@
         // alert(JSON.stringify(ctx));
 
         if(ctx[2]!=="iiif.io" || ctx[3]!=="api") {
-            cache[url]=false;
+            cache[url]=false; // again. no IIIF, block by cache rule
             return false;
         }
 
@@ -250,7 +286,7 @@
             return;
         }
 
-        console.log("URL: "+url);
+        // console.log("URL: "+url);
 
         // tabId = fixTabId(tabId);
 
@@ -342,16 +378,7 @@
             }
         } else {
             console.debug("DETEKTIIIF CACHE MISS: "+url);
-            fetch(url, {cache: "force-cache"})
-                .then(res => res.json())
-                .then((data) => {
-                    cache[url] = data;
-                    compileData(data,url,request,tabId);
-                })
-                .catch((error) => {
-                    cache[url]=false;
-                    console.debug('Error:', error);
-                });
+            fetchHttp(url,request);
         }
 
         // console.log(tabStorage[tabId].requests[details.requestId]);
@@ -362,7 +389,6 @@
         console.log("UPDATE TAB "+tabId)
 
         if(changeInfo.status === 'complete') {
-          globalTabId = tabId; // HACK
           chrome.tabs.executeScript({
             code: "chrome.runtime.sendMessage({type: 'docLoad', doc: document.documentElement.innerHTML});" // or 'file: "getPagesSource.js"'
           }, function(result) {
@@ -378,6 +404,7 @@
             console.log("NO URL INFO");
             return;
         }
+
         // alert("UPDATE");
         if(tabId==chrome.tabs.TAB_ID_NONE) {
             return;
@@ -393,6 +420,7 @@
         if(!tab) {
             return;
         }
+
         const tabId = tab.tabId;
         if(tabId==chrome.tabs.TAB_ID_NONE) {
             return;
