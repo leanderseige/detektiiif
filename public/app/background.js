@@ -46,19 +46,39 @@
     }
 
     function fetchHttp(url,request) {
-      fetchHttpWorker(url,request,"follow");
+      fetchWorkStart(url,request,"follow");
       if(url.startsWith("http:")) {
-        fetchHttpWorker(url.replace(/^http\:/i,"https:"),request,"follow");
+        fetchWorkStart(url.replace(/^http\:/i,"https:"),request,"follow");
       }
     }
 
-    function fetchHttpWorker(url,request,follow) {
+    function fetchWorkStart(url,request,follow) {
       if(url in cache) {
         console.log("no fetch, already cached")
         compileData(cache[url],url,request,activeTab);
         return;
       }
-      fetch(url, {cache: "force-cache", follow: follow})
+      fetchWorkHeader(url,request,follow);
+    }
+
+    function fetchWorkHeader(url,request,follow) {
+      var tregex = /application\/(ld\+)?json/i;
+      fetch(url, {method: 'HEAD', cache: "force-cache", follow: follow})
+        .then((response) => {
+            var t = response.headers.get("content-type");
+            if(t && t.match(tregex)) {
+              console.log("Accepted for GET Req: "+t);
+              fetchWorkBody(url,request,follow);
+            }
+        })
+        .catch((error) => {
+            cache[url] = false;
+            console.debug('Error HEAD Req:', error);
+        });
+    }
+
+    function fetchWorkBody(url,request,follow) {
+      fetch(url, {method: 'GET', cache: "force-cache", follow: follow})
           .then(res => res.json())
           .then((data) => {
               // console.log(data);
@@ -70,7 +90,7 @@
           })
           .catch((error) => {
               cache[url] = false;
-              console.debug('Error:', error);
+              console.debug('Error GET Req:', error);
           });
     }
 
@@ -127,17 +147,7 @@
 
     function analyzeHTMLBody(doc) {
 
-      // NGA
-      var regex_nga = /https\:\/\/www\.nga\.gov\/api\/v1\/iiif\/presentation\/manifest\.json\?cultObj\:id\=[0-9]+/i;
-      var params = doc.match(regex_nga);
-      if(params) {
-        params.forEach((inurl, i) => {
-          var url = inurl.replace("cultObj:id","cultObj%3Aid");
-          url = url.replace("/content/ngaweb","");
-          console.log(url);
-          fetchHttp(url,{cors:2});
-        });
-      }
+      // start guessing by URL 
 
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         let url = tabs[0].url;
@@ -168,8 +178,19 @@
           fetchHttp(url+"manifest.json",{cors:2});
         }
 
-
       });
+
+      // Document Content: NGA
+      var regex_nga = /https\:\/\/www\.nga\.gov\/api\/v1\/iiif\/presentation\/manifest\.json\?cultObj\:id\=[0-9]+/i;
+      var params = doc.match(regex_nga);
+      if(params) {
+        params.forEach((inurl, i) => {
+          var url = inurl.replace("cultObj:id","cultObj%3Aid");
+          url = url.replace("/content/ngaweb","");
+          console.log(url);
+          fetchHttp(url,{cors:2});
+        });
+      }
 
       // Generic, should match e.g. National Museum Sweden
       var regex_generic = /\"(https\:\/\/[^\"]*iiif[^\"]*manifest[^\"]*)\"/gi;
