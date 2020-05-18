@@ -92,6 +92,10 @@ li img {
     color: #000;
     background-color: transparent;
     font-weight: normal;
-    font-size: 64pt;
+    font-size: 10pt;
+    line-height: 20pt;
+    display: inline-block;
+    color:red;
+    margin-top: 25px;
 
 }

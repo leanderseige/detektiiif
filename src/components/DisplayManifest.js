@@ -23,7 +23,7 @@ export default class DisplayManifest extends Component {
 
         var errorflag={};
         errorflag[0] = "";
-        errorflag[1] = <div className="error_block">☠</div>;
+        errorflag[1] = <div className="error_block">no images</div>;
 
         // alert("DM: "+this.props.label);
         // alert("DM "+JSON.stringify(this.props));

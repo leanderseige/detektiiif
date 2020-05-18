@@ -62,12 +62,14 @@
     }
 
     function fetchWorkHeader(url,request,follow) {
+      console.log("HEAD "+url);
       var tregex = /application\/(ld\+)?json/i;
       fetch(url, {method: 'HEAD', cache: "force-cache", follow: follow})
         .then((response) => {
             var t = response.headers.get("content-type");
-            if(t && t.match(tregex)) {
-              console.log("Accepted for GET Req: "+t);
+            console.log(response.status);
+            if( (t&&t.match(tregex)) || response.status==405) {
+              console.log("Accepted for GET Req: "+url);
               fetchWorkBody(url,request,follow);
             }
         })
@@ -147,7 +149,7 @@
 
     function analyzeHTMLBody(doc) {
 
-      // start guessing by URL 
+      // start guessing by URL
 
       chrome.tabs.query({active: true, lastFocusedWindow: true}, tabs => {
         let url = tabs[0].url;
