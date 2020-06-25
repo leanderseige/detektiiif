@@ -47,12 +47,12 @@ https://www.europeana.eu/en/item/2020903/KKS11964
 
 1. ```git clone https://github.com/leanderseige/detektiiif```
 
-2. ```npm install```
-
 2. ```cd detektIIIF```
 
-3. ```npm run build```
+3. ```npm install```
 
-4. in Chrome open the Extensions page, turn on developer mode and click "load unpacked", choose the build folder of this repo
+4. ```npm run build```
+
+5. in Chrome open the Extensions page, turn on developer mode and click "load unpacked", choose the build folder of this repo
 
 ![Screenshot](extensions2.png)
