@@ -4,6 +4,16 @@ import manifesto from 'manifesto.js';
 export default class DisplayManifest extends Component {
     constructor(props) {
         super(props);
+        this.copyUrl = this.copyUrl.bind(this);
+    }
+
+    copyUrl(url) {
+      navigator.clipboard.writeText(url).then(function() {
+        alert("URL copied.");
+      }, function() {
+        alert("Copying URL failed.");
+      });
+
     }
 
     render() {
@@ -41,6 +51,7 @@ export default class DisplayManifest extends Component {
                     <a href={this.props.url} target="_blank">{this.props.url}</a><br />
                     {corsflag[this.props.cors.toString()]}
                     {httpsflag[this.props.url.startsWith("https").toString()]}<br />
+                    <button onClick={() => this.copyUrl(this.props.url)}>COPY URL</button><br />
                 </div>
             </div>
         );
