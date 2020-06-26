@@ -43,3 +43,8 @@
 .App-link {
   color: #61dafb;
 }
+
+.App-status a {
+  color:#ccc;
+  text-decoration: none;
+}

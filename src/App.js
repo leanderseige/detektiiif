@@ -29,16 +29,20 @@ class App extends Component {
 
     render() {
 
+        var cnn = Object.keys(this.state.collections).length;
+        var mnn = Object.keys(this.state.manifests).length;
+        var inn = Object.keys(this.state.images).length;
+
         let stat =
         <div className="App-status">
-          collections: {Object.keys(this.state.collections).length} |
-          manifests: {Object.keys(this.state.manifests).length} |
-          images: {Object.keys(this.state.images).length}
+          <a href="#ancc">collections: {cnn}</a> |
+          <a href="#ancm">manifests: {mnn}</a> |
+          <a href="#anci">images: {inn}</a>
         </div>
 
         let ms = [];
         if(Object.keys(this.state.manifests).length>0) {
-          ms.push(<h3>Presentation API: Manifests</h3>)
+          ms.push(<h3>Presentation API: Manifests<a name="ancm" /></h3>)
           for (var key in this.state.manifests) {
               ms.push(<
                   DisplayManifest
@@ -55,7 +59,7 @@ class App extends Component {
 
         let cs = [];
         if(Object.keys(this.state.collections).length>0) {
-          cs.push(<h3>Presentation API: Collections</h3>)
+          cs.push(<h3>Presentation API: Collections<a name="ancc" /></h3>)
           for (var key in this.state.collections) {
               cs.push(<
                   DisplayManifest
@@ -72,7 +76,7 @@ class App extends Component {
 
         let is = [];
         if(Object.keys(this.state.images).length>0) {
-          is.push(<h3>Image API</h3>)
+          is.push(<h3>Image API<a name="anci" /></h3>)
           for (var key in this.state.images) {
               is.push(<
                   DisplayManifest
