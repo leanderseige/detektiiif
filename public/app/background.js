@@ -2,6 +2,7 @@
     var activeTab = chrome.tabs.TAB_ID_NONE;
     var tabStorage = {};
     var cache = {};
+    var cache_cors = {};
 
     const networkFilters = {
         urls: [
@@ -45,32 +46,38 @@
         };
     }
 
-    function fetchHttp(url,request) {
-      fetchWorkStart(url,request,"follow");
+    function fetchHttp(url) {
+      fetchWorkStart(url,"follow");
       if(url.startsWith("http:")) {
-        fetchWorkStart(url.replace(/^http\:/i,"https:"),request,"follow");
+        fetchWorkStart(url.replace(/^http\:/i,"https:"),"follow");
       }
     }
 
-    function fetchWorkStart(url,request,follow) {
+    function fetchWorkStart(url,follow) {
       if(url in cache) {
         console.log("no fetch, already cached")
-        compileData(cache[url],url,request,activeTab);
+        compileData(url,activeTab);
         return;
       }
-      fetchWorkHeader(url,request,follow);
+      fetchWorkHeader(url,follow);
     }
 
-    function fetchWorkHeader(url,request,follow) {
+    function fetchWorkHeader(url,follow) {
       console.log("HEAD "+url);
       var tregex = /application\/(ld\+)?json/i;
       fetch(url, {method: 'HEAD', cache: "force-cache", follow: follow})
         .then((response) => {
+            var c = response.headers.get("access-control-allow-origin");
+            if( c=="*") {
+              cache_cors[url]=true;
+            } else {
+              cache_cors[url]=false;
+            }
             var t = response.headers.get("content-type");
             console.log(response.status);
             if( (t&&t.match(tregex)) || response.status==405) {
               console.log("Accepted for GET Req: "+url);
-              fetchWorkBody(url,request,follow);
+              fetchWorkBody(url,follow);
             }
         })
         .catch((error) => {
@@ -79,7 +86,7 @@
         });
     }
 
-    function fetchWorkBody(url,request,follow) {
+    function fetchWorkBody(url,follow) {
       fetch(url, {method: 'GET', cache: "force-cache", follow: follow})
           .then(res => res.json())
           .then((data) => {
@@ -87,7 +94,13 @@
               // console.log(url);
               // console.log(activeTab);
               cache[url] = data;
-              compileData(data,url,request,activeTab);
+              // var c = res.headers.get("access-control-allow-origin");
+              // if( c=="*") {
+              //   cache_cors[url]=true;
+              // } else {
+              //   cache_cors[url]=false;
+              // }
+              compileData(url,activeTab);
               // console.log("TAB: "+tabStorage[activeTab]);
           })
           .catch((error) => {
@@ -96,7 +109,9 @@
           });
     }
 
-    function compileData(data,url,request,tabId) {
+    function compileData(url,tabId) {
+        var data = cache[url]
+
         var iiif = analyzeJSONBody(data,url);
         if(!iiif) {
             console.log("NO for "+url);
@@ -109,8 +124,8 @@
 
         var item = {}
         item.id = data['@id'];
-        item.url =url;
-        item.cors = request.cors;
+        item.url = url;
+        item.cors = cache_cors[url];
         item.error = 0;
         if(iiif.api=="presentation" && iiif.type=="manifest") {
             try {
@@ -169,7 +184,7 @@
           }
           if(murl) {
             console.log(murl);
-            fetchHttp(murl,{cors:2});
+            fetchHttp(murl);
           }
         }
 
@@ -177,7 +192,7 @@
         var regex_nationalmuseumse1 = /https\:\/\/nationalmuseumse\.iiifhosting\.com\/iiif\/[^\/]+\//i;
         var params = url.match(regex_nationalmuseumse1);
         if(params) {
-          fetchHttp(url+"manifest.json",{cors:2});
+          fetchHttp(url+"manifest.json");
         }
 
       });
@@ -190,7 +205,7 @@
           var url = inurl.replace("cultObj:id","cultObj%3Aid");
           url = url.replace("/content/ngaweb","");
           console.log(url);
-          fetchHttp(url,{cors:2});
+          fetchHttp(url);
         });
       }
 
@@ -201,7 +216,7 @@
         params.forEach((hit, i) => {
           if(hit.length>1) {
             console.log("check guess: "+hit[1]);
-            fetchHttp(hit[1],{cors:2});
+            fetchHttp(hit[1]);
           }
         });
       }
@@ -334,7 +349,7 @@
                 item.name.toLowerCase().includes("access-control-allow-origin") &&
                 item.value.toLowerCase().includes("*".toUpperCase())
             ) {
-                cors = 1;
+                cache_cors[url] = cors = 1;
             }
             if(item.name=="Content-Length" && item.value>1000000) {
                 // console.log("discard(2) "+details.url);
@@ -388,12 +403,12 @@
         if(cache.hasOwnProperty(url)) {
             console.debug("DETEKTIIIF CACHE HIT: "+url);
             if(cache[url]) {
-                compileData(cache[url],url,request,tabId);
+                compileData(url,tabId);
                 return;
             }
         } else {
             console.debug("DETEKTIIIF CACHE MISS: "+url);
-            fetchHttp(url,request);
+            fetchHttp(url);
         }
 
         // console.log(tabStorage[tabId].requests[details.requestId]);
