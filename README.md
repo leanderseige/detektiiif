@@ -43,6 +43,12 @@ https://www.europeana.eu/en/item/2020903/KKS11964
 
 ![Screenshot](detektiiif3.png)
 
+### Guessing HTTPS connections if HTTP was provided
+
+http://www.europeana.eu/en/item/2064116/Museu_ProvidedCHO_Nationalmuseum__Sweden_20138
+
+![Screenshot](detektiiif4.png)
+
 ## How to use
 
 1. ```git clone https://github.com/leanderseige/detektiiif```
