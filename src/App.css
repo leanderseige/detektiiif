@@ -25,21 +25,21 @@
   flex-direction: column;
   /* align-items: center; */
   /* justify-content: center; */
-  font-size: calc(10px + 2vmin);
+  font-size: 1.6em;
   color: white;
-  margin-top: 5px;
-  margin-bottom: 5px;
+  padding: .8em 3.2em .8em 3.2em;
+}
+
+.App-body {
+  padding: .8em;
+}
+
+.App-status {
+  padding: .2em .8em .2em .2em;
+  color: #ccc;
+  text-align: right;
 }
 
 .App-link {
   color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
 }

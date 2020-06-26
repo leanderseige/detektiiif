@@ -29,61 +29,80 @@ class App extends Component {
 
     render() {
 
+        let stat =
+        <div className="App-status">
+          collections: {Object.keys(this.state.collections).length} |
+          manifests: {Object.keys(this.state.manifests).length} |
+          images: {Object.keys(this.state.images).length}
+        </div>
+
         let ms = [];
-        for (var key in this.state.manifests) {
-            ms.push(<
-                DisplayManifest
-                key = { `item-${this.state.manifests[key].id}` }
-                id = { this.state.manifests[key].id }
-                label = { this.state.manifests[key].label }
-                thumb = { this.state.manifests[key].thumb }
-                url = { this.state.manifests[key].url }
-                cors = { this.state.manifests[key].cors }
-                error = { this.state.manifests[key].error }
-            />)
+        if(Object.keys(this.state.manifests).length>0) {
+          ms.push(<h3>Presentation API: Manifests</h3>)
+          for (var key in this.state.manifests) {
+              ms.push(<
+                  DisplayManifest
+                  key = { `item-${this.state.manifests[key].id}` }
+                  id = { this.state.manifests[key].id }
+                  label = { this.state.manifests[key].label }
+                  thumb = { this.state.manifests[key].thumb }
+                  url = { this.state.manifests[key].url }
+                  cors = { this.state.manifests[key].cors }
+                  error = { this.state.manifests[key].error }
+              />)
+          }
         }
 
         let cs = [];
-        for (var key in this.state.collections) {
-            cs.push(<
-                DisplayManifest
-                key = { `item-${this.state.collections[key].id}` }
-                id = { this.state.collections[key].id }
-                label = { this.state.collections[key].label }
-                thumb = { this.state.collections[key].thumb }
-                url = { this.state.collections[key].url }
-                cors = { this.state.collections[key].cors }
-                error = { this.state.collections[key].error }
-            />)
+        if(Object.keys(this.state.collections).length>0) {
+          cs.push(<h3>Presentation API: Collections</h3>)
+          for (var key in this.state.collections) {
+              cs.push(<
+                  DisplayManifest
+                  key = { `item-${this.state.collections[key].id}` }
+                  id = { this.state.collections[key].id }
+                  label = { this.state.collections[key].label }
+                  thumb = { this.state.collections[key].thumb }
+                  url = { this.state.collections[key].url }
+                  cors = { this.state.collections[key].cors }
+                  error = { this.state.collections[key].error }
+              />)
+          }
         }
 
         let is = [];
-        for (var key in this.state.images) {
-            is.push(<
-                DisplayManifest
-                key = { `item-${this.state.images[key].id}` }
-                id = { this.state.images[key].id }
-                label = { this.state.images[key].label }
-                thumb = { this.state.images[key].thumb }
-                url = { this.state.images[key].url }
-                cors = { this.state.images[key].cors }
-                error = { this.state.images[key].error }
-            />)
+        if(Object.keys(this.state.images).length>0) {
+          is.push(<h3>Image API</h3>)
+          for (var key in this.state.images) {
+              is.push(<
+                  DisplayManifest
+                  key = { `item-${this.state.images[key].id}` }
+                  id = { this.state.images[key].id }
+                  label = { this.state.images[key].label }
+                  thumb = { this.state.images[key].thumb }
+                  url = { this.state.images[key].url }
+                  cors = { this.state.images[key].cors }
+                  error = { this.state.images[key].error }
+              />)
+          }
         }
 
         // alert("APP "+JSON.stringify(this.state.manifests));
+
+        let cc = ms.concat(cs,is)
+        if(cc.length==0) {
+          cc.push("No IIIF content on this page.")
+        }
 
         return (
           <div className="App">
             <header className="App-header">
               <h2 className="App-title">detektIIIF</h2>
             </header>
-            <h3>Presentation API: Manifests</h3>
-            {ms}
-            <h3>Presentation API: Collections</h3>
-            {cs}
-            <h3>Image API</h3>
-            {is}
+            {stat}
+            <div className="App-body">
+            {cc}
+            </div>
           </div>
         );
     }
