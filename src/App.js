@@ -28,7 +28,7 @@ class App extends Component {
             chrome.runtime.sendMessage({type: 'popupInit', tabId: tab.id, url: tab.url}, (response) => {
                 if (response) {
                     // console.log(JSON.stringify(response.iiif))
-                    this.setState({...response.iiif});
+                    this.setState(Object.assign({},{...response.iiif},{basket:response.basket}));
                 }
             });
         });
@@ -43,13 +43,12 @@ class App extends Component {
     }
 
     addToBasket(key) {
-      // alert("aTB"+JSON.stringify(this.state.manifests[key]));
       const newbasket = Object.assign(this.state.basket);
       newbasket[key] = this.state.manifests[key];
       this.setState({
         basket: newbasket
       })
-      // alert("aTB"+JSON.stringify(this.state.basket));
+      chrome.runtime.sendMessage({type: 'basketUpd', basket: this.state.basket});
     }
 
     removeFromBasket(key) {
@@ -58,6 +57,7 @@ class App extends Component {
       this.setState({
         basket: newbasket
       })
+      chrome.runtime.sendMessage({type: 'basketUpd', basket: this.state.basket});
     }
 
     render() {

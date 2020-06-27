@@ -42,8 +42,10 @@ export default class DisplayBasket extends Component {
                     <a href={this.props.url} target="_blank">{this.props.url}</a><br />
                     {corsflag[this.props.cors.toString()]}
                     {httpsflag[this.props.url.startsWith("https").toString()]}<br />
-                    <button onClick={() => this.props.copyUrl(this.props.url)}>COPY URL</button><br />
-                    <button onClick={() => this.props.removeFromBasket(this.props.url)}>REM FROM BASKET</button><br />
+                    <button onClick={() => this.props.copyUrl(this.props.url)}>COPY URL</button>
+                    <button onClick={() => this.props.removeFromBasket(this.props.url)}>REM FROM BASKET</button>
+                    <a href={'https://universalviewer.io/uv.html?manifest='+this.props.url} target="_blank">UV</a>&nbsp;
+                    <a href={'https://demo.tify.rocks/demo.html?manifest='+this.props.url} target="_blank">TIFY</a>
                 </div>
             </div>
         );

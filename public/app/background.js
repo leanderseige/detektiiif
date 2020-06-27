@@ -3,6 +3,7 @@
     var tabStorage = {};
     var cache = {};
     var cache_cors = {};
+    var basket = {};
 
     const networkFilters = {
         urls: [
@@ -13,11 +14,16 @@
     chrome.runtime.onMessage.addListener((msg, sender, response) => {
         switch (msg.type) {
             case 'popupInit':
-                response(tabStorage[msg.tabId]);
+                response(
+                  Object.assign({},tabStorage[msg.tabId],{basket: basket})
+                );
                 break;
             case 'docLoad':
                 console.log("DOC RCVD");
                 analyzeHTMLBody(msg.doc);
+                break;
+            case 'basketUpd':
+                basket = msg.basket;
                 break;
             default:
                 response('unknown request');
