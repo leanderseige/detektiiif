@@ -2,8 +2,8 @@
 import React, { Component } from 'react';
 import './App.css';
 import {getCurrentTab} from "./common/Utils";
-import { createStore } from 'redux'
-import { Provider } from 'react-redux'
+// import { createStore } from 'redux'
+// import { Provider } from 'react-redux'
 import DisplayManifest from "./components/DisplayManifest";
 
 class App extends Component {
