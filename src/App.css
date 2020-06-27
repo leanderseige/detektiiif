@@ -1,5 +1,7 @@
 .App {
   text-align: center;
+  display:inline-block;
+  width:100%;
 }
 
 .App-logo {
@@ -31,7 +33,8 @@
 }
 
 .App-body {
-  padding: .8em;
+  padding: 1em 0em 1em 0em;
+  width:100%;
 }
 
 .App-status {

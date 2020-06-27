@@ -91,6 +91,8 @@ class App extends Component {
                   addToBasket = {this.addToBasket.bind(this)}
               />)
           }
+        } else {
+          ms = "No IIIF Manifests detected.";
         }
 
         let cs = [];
@@ -109,6 +111,8 @@ class App extends Component {
                   copyUrl = {this.copyUrl.bind(this)}
               />)
           }
+        } else {
+          cs = "No IIIF Collections detected.";
         }
 
         let is = [];
@@ -127,6 +131,8 @@ class App extends Component {
                   copyUrl = {this.copyUrl.bind(this)}
               />)
           }
+        } else {
+          is = "No IIIF images detected.";
         }
 
         let bs = [];
@@ -146,6 +152,8 @@ class App extends Component {
                   removeFromBasket = {this.removeFromBasket.bind(this)}
               />)
           }
+        } else {
+          bs = "Basket is empty.";
         }
 
         // alert("APP "+JSON.stringify(this.state.manifests));
@@ -167,6 +175,7 @@ class App extends Component {
             <header className="App-header">
               <h2 className="App-title">detektIIIF</h2>
             </header>
+            <div className="App-body">
                 <Tabs>
                   <TabList>
                     <Tab>Manifests ({mnn})</Tab>
@@ -187,8 +196,8 @@ class App extends Component {
                     {bs}
                   </TabPanel>
                 </Tabs>
-
-              </div>
+            </div>
+          </div>
         );
     }
 }
