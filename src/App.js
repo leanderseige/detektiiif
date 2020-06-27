@@ -9,6 +9,9 @@ import DisplayManifest from "./components/DisplayManifest";
 import DisplayImage from "./components/DisplayImage";
 import DisplayBasket from "./components/DisplayBasket";
 
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -62,6 +65,7 @@ class App extends Component {
         var cnn = Object.keys(this.state.collections).length;
         var mnn = Object.keys(this.state.manifests).length;
         var inn = Object.keys(this.state.images).length;
+        var bnn = Object.keys(this.state.basket).length;
 
         let stat =
         <div className="App-status">
@@ -127,9 +131,9 @@ class App extends Component {
 
         let bs = [];
         if(Object.keys(this.state.basket).length>0) {
-          is.push(<h3>Basket<a name="ancb" /></h3>)
+          bs.push(<h3>Basket<a name="ancb" /></h3>)
           for (var key in this.state.basket) {
-              is.push(<
+              bs.push(<
                   DisplayBasket
                   key = { `item-${this.state.basket[key].id}` }
                   id = { this.state.basket[key].id }
@@ -151,16 +155,40 @@ class App extends Component {
           cc.push("No IIIF content on this page.")
         }
 
+        // <div className="App">
+        //   <header className="App-header">
+        //     <h2 className="App-title">detektIIIF</h2>
+        //   </header>
+        //
+        //   </div>
+        //
         return (
           <div className="App">
             <header className="App-header">
               <h2 className="App-title">detektIIIF</h2>
             </header>
-            {stat}
-            <div className="App-body">
-            {cc}
-            </div>
-          </div>
+                <Tabs>
+                  <TabList>
+                    <Tab>Manifests ({mnn})</Tab>
+                    <Tab>Images ({inn})</Tab>
+                    <Tab>Collections ({cnn})</Tab>
+                    <Tab>Basket ({bnn})</Tab>
+                  </TabList>
+                  <TabPanel>
+                    {ms}
+                  </TabPanel>
+                  <TabPanel>
+                    {is}
+                  </TabPanel>
+                  <TabPanel>
+                    {cs}
+                  </TabPanel>
+                  <TabPanel>
+                    {bs}
+                  </TabPanel>
+                </Tabs>
+
+              </div>
         );
     }
 }
