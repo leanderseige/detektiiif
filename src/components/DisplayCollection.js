@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import manifesto from 'manifesto.js';
 
-export default class DisplayManifest extends Component {
+export default class DisplayCollection extends Component {
     constructor(props) {
         super(props);
         // this.copyUrl = this.copyUrl.bind(this);
@@ -43,7 +43,6 @@ export default class DisplayManifest extends Component {
                     {corsflag[this.props.cors.toString()]}
                     {httpsflag[this.props.url.startsWith("https").toString()]}<br />
                     <button onClick={() => this.props.copyUrl(this.props.url)}>COPY URL</button><br />
-                    <button onClick={() => this.props.addToBasket(this.props.id)}>ADD TO BASKET</button><br />
                 </div>
             </div>
         );

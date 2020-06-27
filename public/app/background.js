@@ -122,6 +122,12 @@
             initTabStorage(tabId);
         }
 
+        // manifesto experiment
+        // manifesto.loadManifest(url).then(function(manifest){
+          // var m = manifesto.parseManifest(JSON.stringify(data));
+          // console.log("MANIFESTO: "+manifesto.LanguageMap.getValue(m.getLabel(), 'en-gb'));
+        // });
+
         var item = {}
         item.id = data['@id'];
         item.url = url;

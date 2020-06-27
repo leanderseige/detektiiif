@@ -3,7 +3,7 @@
 
   "name": "detektIIIF",
   "description": "This extension is a starting point to create a real Chrome extension",
-  "version": "0.0.53",
+  "version": "0.0.54",
 
   "browser_action": {
     "default_popup": "index.html",
@@ -15,7 +15,7 @@
     "128": "logo-small.png"
   },
   "background": {
-    "scripts": ["app/background.js"]
+    "scripts": ["app/background.js","app/manifesto.js"]
   },
   "permissions": [
     "webRequest",

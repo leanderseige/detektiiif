@@ -4,7 +4,10 @@ import './App.css';
 import {getCurrentTab} from "./common/Utils";
 // import { createStore } from 'redux'
 // import { Provider } from 'react-redux'
+import DisplayCollection from "./components/DisplayCollection";
 import DisplayManifest from "./components/DisplayManifest";
+import DisplayImage from "./components/DisplayImage";
+import DisplayBasket from "./components/DisplayBasket";
 
 class App extends Component {
     constructor(props) {
@@ -12,7 +15,8 @@ class App extends Component {
         this.state = {
             manifests: {},
             collections: {},
-            images: {}
+            images: {},
+            basket: {}
         };
     }
 
@@ -25,6 +29,32 @@ class App extends Component {
                 }
             });
         });
+    }
+
+    copyUrl(url) {
+      navigator.clipboard.writeText(url).then(function() {
+        alert("URL copied.");
+      }, function() {
+        alert("Copying URL failed.");
+      });
+    }
+
+    addToBasket(key) {
+      // alert("aTB"+JSON.stringify(this.state.manifests[key]));
+      const newbasket = Object.assign(this.state.basket);
+      newbasket[key] = this.state.manifests[key];
+      this.setState({
+        basket: newbasket
+      })
+      // alert("aTB"+JSON.stringify(this.state.basket));
+    }
+
+    removeFromBasket(key) {
+      const newbasket = Object.assign(this.state.basket);
+      delete newbasket[key];
+      this.setState({
+        basket: newbasket
+      })
     }
 
     render() {
@@ -53,6 +83,8 @@ class App extends Component {
                   url = { this.state.manifests[key].url }
                   cors = { this.state.manifests[key].cors }
                   error = { this.state.manifests[key].error }
+                  copyUrl = {this.copyUrl.bind(this)}
+                  addToBasket = {this.addToBasket.bind(this)}
               />)
           }
         }
@@ -62,7 +94,7 @@ class App extends Component {
           cs.push(<h3>Presentation API: Collections<a name="ancc" /></h3>)
           for (var key in this.state.collections) {
               cs.push(<
-                  DisplayManifest
+                  DisplayCollection
                   key = { `item-${this.state.collections[key].id}` }
                   id = { this.state.collections[key].id }
                   label = { this.state.collections[key].label }
@@ -70,6 +102,7 @@ class App extends Component {
                   url = { this.state.collections[key].url }
                   cors = { this.state.collections[key].cors }
                   error = { this.state.collections[key].error }
+                  copyUrl = {this.copyUrl.bind(this)}
               />)
           }
         }
@@ -79,7 +112,7 @@ class App extends Component {
           is.push(<h3>Image API<a name="anci" /></h3>)
           for (var key in this.state.images) {
               is.push(<
-                  DisplayManifest
+                  DisplayImage
                   key = { `item-${this.state.images[key].id}` }
                   id = { this.state.images[key].id }
                   label = { this.state.images[key].label }
@@ -87,13 +120,33 @@ class App extends Component {
                   url = { this.state.images[key].url }
                   cors = { this.state.images[key].cors }
                   error = { this.state.images[key].error }
+                  copyUrl = {this.copyUrl.bind(this)}
+              />)
+          }
+        }
+
+        let bs = [];
+        if(Object.keys(this.state.basket).length>0) {
+          is.push(<h3>Basket<a name="ancb" /></h3>)
+          for (var key in this.state.basket) {
+              is.push(<
+                  DisplayBasket
+                  key = { `item-${this.state.basket[key].id}` }
+                  id = { this.state.basket[key].id }
+                  label = { this.state.basket[key].label }
+                  thumb = { this.state.basket[key].thumb }
+                  url = { this.state.basket[key].url }
+                  cors = { this.state.basket[key].cors }
+                  error = { this.state.basket[key].error }
+                  copyUrl = {this.copyUrl.bind(this)}
+                  removeFromBasket = {this.removeFromBasket.bind(this)}
               />)
           }
         }
 
         // alert("APP "+JSON.stringify(this.state.manifests));
 
-        let cc = ms.concat(cs,is)
+        let cc = ms.concat(cs,is,bs)
         if(cc.length==0) {
           cc.push("No IIIF content on this page.")
         }
