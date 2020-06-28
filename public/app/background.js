@@ -81,7 +81,7 @@
             }
             var t = response.headers.get("content-type");
             console.log(response.status);
-            if( (t&&t.match(tregex)) || response.status==405) {
+            if( (t&&t.match(tregex)) || response.status!=200) { // bad implementations crash if you send them HEAD
               console.log("Accepted for GET Req: "+url);
               fetchWorkBody(url,follow);
             }
@@ -89,6 +89,8 @@
         .catch((error) => {
             cache[url] = false;
             console.debug('Error HEAD Req:', error);
+            console.log("Let's try GET... "+" // "+url);
+            fetchWorkBody(url,follow);
         });
     }
 
@@ -207,6 +209,20 @@
           fetchHttp(url+"manifest.json");
         }
 
+        // Generic, for relative Links (Yes, some people do This)
+        var regex_generic = /\"(\/[^\"]*(iiif|manifest)[^\"]*)\"/gi;
+        var params = [...doc.matchAll(regex_generic)];
+        if(params) {
+          var base = url.split('/')
+          var base = base[0]+'//'+base[2]
+          params.forEach((hit, i) => {
+            if(hit.length>1) {
+              console.log("check guess: "+base+hit[1]);
+              fetchHttp(base+hit[1]);
+            }
+          });
+        }
+
       });
 
       // Document Content: NGA
@@ -221,13 +237,25 @@
         });
       }
 
-      // Generic, should match e.g. National Museum Sweden
-      var regex_generic = /\"(https\:\/\/[^\"]*iiif[^\"]*manifest[^\"]*)\"/gi;
+      // Generic 1, should match e.g. National Museum Sweden
+      var regex_generic = /\"(https\:\/\/[^\"]*(iiif|manifest)[^\"]*)\"/gi;
       var params = [...doc.matchAll(regex_generic)];
       if(params) {
         params.forEach((hit, i) => {
           if(hit.length>1) {
-            console.log("check guess: "+hit[1]);
+            console.log("check guess type 1: "+hit[1]);
+            fetchHttp(hit[1]);
+          }
+        });
+      }
+
+      // Generic 2, intra-Link
+      var regex_generic = /\"https[\"]*=(https\:\/\/[^\"\&]*(iiif|manifest)[^\"\&]*)[\"\&]/gi;
+      var params = [...doc.matchAll(regex_generic)];
+      if(params) {
+        params.forEach((hit, i) => {
+          if(hit.length>1) {
+            console.log("check guess type 2: "+hit[1]);
             fetchHttp(hit[1]);
           }
         });
