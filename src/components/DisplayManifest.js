@@ -45,7 +45,8 @@ export default class DisplayManifest extends Component {
                     <button onClick={() => this.props.copyUrl(this.props.url)}>COPY URL</button>
                     <button onClick={() => this.props.addToBasket(this.props.id)}>ADD TO BASKET</button>
                     <a href={'https://universalviewer.io/uv.html?manifest='+this.props.url} target="_blank">UV</a>&nbsp;
-                    <a href={'https://demo.tify.rocks/demo.html?manifest='+this.props.url} target="_blank">TIFY</a>
+                    <a href={'https://demo.tify.rocks/demo.html?manifest='+this.props.url} target="_blank">TIFY</a>&nbsp;
+                    <a href={'https://manducus.net/m3?manifest='+this.props.url} target="_blank">M3</a>
                     <br />
                 </div>
             </div>
