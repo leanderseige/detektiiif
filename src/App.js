@@ -21,6 +21,8 @@ class App extends Component {
             images: {},
             basket: {}
         };
+        this.copyBasketCollection = this.copyBasketCollection.bind(this);
+        this.openBasketCollection = this.openBasketCollection.bind(this);
     }
 
     componentDidMount() {
@@ -49,6 +51,47 @@ class App extends Component {
         basket: newbasket
       })
       chrome.runtime.sendMessage({type: 'basketUpd', basket: this.state.basket});
+    }
+
+    buildBasketCollection() {
+      var c = {
+            "@context": "http://iiif.io/api/presentation/2/context.json",
+            "@id": "https://detektiiif.manducus.net/invalid",
+            "@type": "sc:Collection",
+            "label": "custom detektIIIF collection",
+            "manifests": []
+      };
+      for (var key in this.state.basket) {
+        c.manifests.push({
+            "@id": this.state.basket[key].id,
+            "@type": "sc:Manifest",
+            "label": this.state.basket[key].label
+        });
+      }
+      return c;
+    }
+
+    copyBasketCollection() {
+      var c = this.buildBasketCollection();
+      navigator.clipboard.writeText(JSON.stringify(c)).then(function() {
+        alert("Collection copied.");
+      }, function() {
+        alert("Copying Collection failed.");
+      });
+    }
+
+    openBasketCollection() {
+      var c = this.buildBasketCollection();
+      var form = document.createElement("form");
+      form.setAttribute("method", "post");
+      form.setAttribute("action", "https://manducus.net/m3/index.php");
+      form.setAttribute("target", "_blank");
+      var hiddenField = document.createElement("input");
+      hiddenField.setAttribute("name", "collection");
+      hiddenField.setAttribute("value", JSON.stringify(c));
+      form.appendChild(hiddenField);
+      document.body.appendChild(form);
+      form.submit();
     }
 
     removeFromBasket(key) {
@@ -193,6 +236,8 @@ class App extends Component {
                     {cs}
                   </TabPanel>
                   <TabPanel>
+                  <button onClick={() => this.copyBasketCollection()}>COPY AS COLLECTION</button>&nbsp;
+                  <button onClick={() => this.openBasketCollection()}>OPEN IN M3</button>
                     {bs}
                   </TabPanel>
                 </Tabs>
