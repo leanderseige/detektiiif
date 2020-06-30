@@ -1,6 +1,6 @@
 # detektIIIF
 
-This is a chrome extension to discover IIIF resources and links in websites. It is just a proof-of-concept, it is work not-in-progress-anymore and it surely will contain bugs. I would like to inspire people to build extensions like this for popular browsers. Please do it better than I did.
+This is a chrome extension to discover IIIF resources and links in websites. It is just a proof-of-concept, it is experimental, work-in-progress and it surely will contain bugs. I would like to inspire people to build extensions like this for popular browsers. Please do it better than I did.
 
 ![Screenshot](detektiiif5.png)
 
