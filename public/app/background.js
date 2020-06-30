@@ -70,8 +70,8 @@
 
     function fetchWorkHeader(url,follow) {
       console.log("HEAD "+url);
-      var tregex = /application\/(ld\+)?json/i;
-      fetch(url, {method: 'HEAD', cache: "force-cache", follow: follow})
+      var tregex = /application\/([a-z]+\+)?json/i;
+      fetch(url, {method: 'HEAD', cache: 'no-store', follow: 'follow', referrerPolicy: 'no-referrer'})
         .then((response) => {
             var c = response.headers.get("access-control-allow-origin");
             if( c=="*") {
@@ -95,7 +95,12 @@
     }
 
     function fetchWorkBody(url,follow) {
-      fetch(url, {method: 'GET', cache: "force-cache", follow: follow})
+      if(cache_cors[url]===true) {
+        var cm='force-cache';
+      } else {
+        var cm='no-store';
+      }
+      fetch(url, {method: 'GET', cache: cm, follow: 'follow', referrerPolicy: 'no-referrer'})
           .then(res => res.json())
           .then((data) => {
               // console.log(data);
