@@ -71,19 +71,25 @@
     function fetchWorkHeader(url,follow) {
       console.log("HEAD "+url);
       var tregex = /application\/([a-z]+\+)?json/i;
+      // FIXME workaround to avoid problems chrome's cache vs dynamic cors headers, example: https://edl.beniculturali.it/beu/850013655
       fetch(url, {method: 'HEAD', cache: 'no-store', follow: 'follow', referrerPolicy: 'no-referrer'})
         .then((response) => {
             var c = response.headers.get("access-control-allow-origin");
+            console.log("CORS: "+c+" for "+url);
             if( c=="*") {
               cache_cors[url]=true;
             } else {
               cache_cors[url]=false;
             }
             var t = response.headers.get("content-type");
+            var s = response.headers.get("content-length");
+            console.log(t+" "+s+" "+url);
             console.log(response.status);
-            if( (t&&t.match(tregex)) || response.status!=200) { // bad implementations crash if you send them HEAD
+            if( ( t && t.match(tregex)) || response.status!=200) { // bad implementations crash if you send them HEAD
               console.log("Accepted for GET Req: "+url);
               fetchWorkBody(url,follow);
+            } else {
+              console.log("Rejected: "+url);
             }
         })
         .catch((error) => {
@@ -100,7 +106,8 @@
       } else {
         var cm='no-store';
       }
-      fetch(url, {method: 'GET', cache: cm, follow: 'follow', referrerPolicy: 'no-referrer'})
+      // FIXME workaround to avoid problems chrome's cache vs dynamic cors headers, example: https://edl.beniculturali.it/beu/850013655
+      fetch(url, {method: 'GET', cache: 'no-store', follow: 'follow', referrerPolicy: 'no-referrer'})
           .then(res => res.json())
           .then((data) => {
               // console.log(data);
@@ -245,6 +252,10 @@
       // Generic 1, should match e.g. National Museum Sweden
       var regex_generic = /\"(https\:\/\/[^\"]*(iiif|manifest)[^\"]*)\"/gi;
       var params = [...doc.matchAll(regex_generic)];
+      if(params.length>20) {
+        alert("detektIIIF: limiting huge number of matches (case 1)"); // FIXME do nice status in tab header, dont alert
+        params=params.slice(0,20);
+      }
       if(params) {
         params.forEach((hit, i) => {
           if(hit.length>1) {
@@ -257,6 +268,10 @@
       // Generic 2, intra-Link
       var regex_generic = /\"https[\"]*=(https\:\/\/[^\"\&]*(iiif|manifest)[^\"\&]*)[\"\&]/gi;
       var params = [...doc.matchAll(regex_generic)];
+      if(params.length>20) {
+        alert("detektIIIF: limiting huge number of matches (case 2)"); // FIXME do nice status in tab header, dont alert
+        params=params.slice(0,20);
+      }
       if(params) {
         params.forEach((hit, i) => {
           if(hit.length>1) {
