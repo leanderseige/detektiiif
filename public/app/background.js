@@ -72,7 +72,8 @@
       console.log("HEAD "+url);
       var tregex = /application\/([a-z]+\+)?json/i;
       // FIXME workaround to avoid problems chrome's cache vs dynamic cors headers, example: https://edl.beniculturali.it/beu/850013655
-      fetch(url, {method: 'HEAD', cache: 'no-store', follow: 'follow', referrerPolicy: 'no-referrer'})
+      // Upd: ran into troubles, switch back to force-cache, ignoring dynamic cors cases
+      fetch(url, {method: 'HEAD', cache: 'force-cache', follow: 'follow', referrerPolicy: 'no-referrer'})
         .then((response) => {
             var c = response.headers.get("access-control-allow-origin");
             console.log("CORS: "+c+" for "+url);
@@ -252,9 +253,10 @@
       // Generic 1, should match e.g. National Museum Sweden
       var regex_generic = /\"(https\:\/\/[^\"]*(iiif|manifest)[^\"]*)\"/gi;
       var params = [...doc.matchAll(regex_generic)];
-      if(params.length>20) {
-        alert("detektIIIF: limiting huge number of matches (case 1)"); // FIXME do nice status in tab header, dont alert
-        params=params.slice(0,20);
+      if(params.length>100) {
+        // FIXME do nice status in tab header, dont alert
+        // alert("detektIIIF: limiting huge number of matches (case 1)");
+        params=params.slice(0,100);
       }
       if(params) {
         params.forEach((hit, i) => {
