@@ -1,6 +1,6 @@
-# detektIIIF
+# This is the old and outdated version of detektIIIF. Please head over to https://github.com/seigedigital/detektiiif2 for the new detektIIIF2!
 
-__This is the old and outdated version of detektIIIF. Please head over to https://github.com/seigedigital/detektiiif2 for the new detektIIIF2!__
+# detektIIIF
 
 This is a chrome extension to discover IIIF resources and links in websites. It is just a proof-of-concept, it is experimental, work-in-progress and it surely will contain bugs. I would like to inspire people to build extensions like this for popular browsers. Please do it better than I did.
 
